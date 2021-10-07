@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Firebase Hosting</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.1.1/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.1.1/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/9.1.1/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+    <!-- Firebase UI imports -->
+    <script src="https://www.gstatic.com/firebasejs/ui/5.0.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/5.0.0/firebase-ui-auth.css" />
+
+    <!-- Boostrap imports -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    
+    <!-- Vue Imports -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    
+
+    <style media="screen">
+      body { background: #2d2e33; color: white; font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+      #mainDiv { background: #577590; width: 700px; }
+      .sixth { height:100px; width:90%; }
+      #lines { padding-top: 2.25%; }
+      #start.start-green { background-color: #90be6d; }
+      #start.start-green:hover { background-color: #9abf7e; }
+      #start.start-red { background-color: #f94144; }
+      #start.start-red:hover { background-color: #fc5d60; }
+      #auth-overlay { display: none; background-color: #2d2e33ba; position: absolute; height: 200%; }
+      @media (max-width: 600px) {
+        body, #message { margin-top: 0; background: white; box-shadow: none; }
+        body { border-top: 16px solid #ffa100; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="auth-overlay" class="w-100">
+      <div class="w-100 h-100 d-flex flex-row justify-content-center">
+        <div id="firebaseui-auth-container" class="mt-5"></div>
+      </div>
+    </div>
+    <div id="mainDiv" class="rounded mx-auto my-5 p-5 d-flex flex-column align-items-center">
+        <h1 class="text-center">....</h1>
+        <div id="daySelector" class="d-flex flex-row w-75 text-center justify-content-center fs-4">
+            <div id="previousDay"><i class="bi bi-caret-left-fill"></i></div>
+            <div id="selectedDay" class="px-5">Vendredi</div>
+            <div id="nextDay"><i class="bi bi-caret-right-fill"></i></div>
+        </div>
+        <div id="dayInfo" class="w-100 d-flex flex-row mt-5">
+            <div id="times" class="me-3 d-flex flex-column">
+                <div id="00-04" class="sixth">00</div>
+                <div id="04-08" class="sixth">04</div>
+                <div id="08-12" class="sixth">08</div>
+                <div id="12-16" class="sixth">12</div>
+                <div id="16-20" class="sixth">16</div>
+                <div id="20-00" class="sixth">20</div>
+                24
+            </div>
+            <div id="lines" class="flex-fill d-flex flex-column align-items-center">
+                <div id="00-04" class="sixth border-top"></div>
+                <div id="04-08" class="sixth border-top"></div>
+                <div id="08-12" class="sixth border-top"></div>
+                <div id="12-16" class="sixth border-top"></div>
+                <div id="16-20" class="sixth border-top"></div>
+                <div id="20-00" class="sixth border-top border-bottom"></div>
+            </div>          
+        </div>
+        <div id="controls" class="pt-4 d-flex flex-row align-items-stretch w-100 fs-3">
+            <div class="d-flex flex-row justify-content-center" style="flex:1;">
+                <div id="start" class="rounded w-75 text-center start-green"><i id="start-icon" class="bi bi-play-fill align-middle"></i></div>
+            </div>
+            <div id="duration" class="px-2 text-center d-flex flex-column justify-content-center" style="flex:1;">00:00:00</div>
+        </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+      import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
+      import { getAuth, browserSessionPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAAKJWUFlMNQlOCJO6XnH4Gx68C9nXAVHI",
+        authDomain: "daytracker-6f56d.firebaseapp.com",
+        projectId: "daytracker-6f56d",
+        storageBucket: "daytracker-6f56d.appspot.com",
+        messagingSenderId: "695023647896",
+        appId: "1:695023647896:web:3a7b20486aaadf2281e4ed",
+        databaseURL: "https://daytracker-6f56d-default-rtdb.europe-west1.firebasedatabase.app/"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase();
+
+      var sw_start = 0;
+      var sw_running = false;
+      var sw_interval;
+
+      var uiConfig = {
+        callbacks: {
+          signInSuccessWithAuthResult : function(authResult, redirectUrl) {
+            $("#auth-overlay").hide(200);
+            return false;
+          }
+        },
+        signInSuccessUrl: '/',
+        signInOptions: [
+          // Leave the lines as is for the providers you want to offer your users.
+          firebase.auth.EmailAuthProvider.PROVIDER_ID,
+        ],
+      };
+
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      ui.start('#firebaseui-auth-container', uiConfig);
+
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          $("#auth-overlay").show(200);
+        } else {
+          console.log(user);
+        }
+      })
+
+      $("#start").click((event) => {
+        if (!sw_running) {
+          sw_start = Date.now();
+          sw_running = true;
+          sw_interval = setInterval(updateDuration,9);
+          $("#start-icon").removeClass("bi-play-fill");
+          $("#start-icon").addClass("bi-stop-fill");
+          $("#start").removeClass("start-green");
+          $("#start").addClass("start-red");
+        } else {
+          var sw_stop = Date.now();
+          sw_running = false;
+          clearInterval(sw_interval);
+          addActivity(sw_start, sw_stop);
+          $("#start-icon").removeClass("bi-stop-fill");
+          $("#start-icon").addClass("bi-play-fill");
+          $("#start").removeClass("start-red");
+          $("#start").addClass("start-green");
+          $("#duration").text("00:00:00");
+        }
+      });
+
+      function updateDuration() {
+        var ms = Date.now() - sw_start;
+        var seconds = Math.floor(ms/1000);
+        var minutes = Math.floor(seconds/60);
+        var hours = Math.floor(minutes/60);
+        var strhours = hours.toString().padStart(2,"0");
+        var strminutes = (minutes%60).toString().padStart(2,"0");
+        var strseconds = (seconds%60).toString().padStart(2,"0");
+        $("#duration").text(`${strhours}:${strminutes}:${strseconds}`);
+      }
+
+      function addActivity(start, end) {
+        set(ref(db, "activity/"+start), {
+          start: start,
+          stop: end
+        });
+      }
+
+    </script>
+  </body>
+</html>

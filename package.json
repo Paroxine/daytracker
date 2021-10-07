@@ -1,0 +1,19 @@
+{
+  "name": "daytracker",
+  "version": "1.0.0",
+  "description": "A simple WEB UI to track your day.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paroxine/daytracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Paroxine/daytracker/issues"
+  },
+  "homepage": "https://github.com/Paroxine/daytracker#readme"
+}
