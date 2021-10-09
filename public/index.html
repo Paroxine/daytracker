@@ -41,7 +41,7 @@
     
 
     <style media="screen">
-      body { background: #2d2e33; color: white; font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+      body { background: #2d2e33; color: white; font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; position: relative; }
       #mainDiv { background: #577590; width: 700px; }
       .sixth { height:100px; width:90%; }
       #lines { padding-top: 2.25%; }
@@ -50,10 +50,7 @@
       #start.start-red { background-color: #f94144; }
       #start.start-red:hover { background-color: #fc5d60; }
       #auth-overlay { display: none; background-color: #2d2e33ba; position: absolute; height: 200%; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
+      .activity { width:56%; height: 10%; position: absolute; left: 8%; opacity: 0.5; }
     </style>
   </head>
   <body>
@@ -69,7 +66,12 @@
             <div id="selectedDay" class="px-5">Vendredi</div>
             <div id="nextDay"><i class="bi bi-caret-right-fill"></i></div>
         </div>
-        <div id="dayInfo" class="w-100 d-flex flex-row mt-5">
+        <div id="dayInfo" class="w-100 d-flex flex-row mt-5 position-relative">
+            <div id="v-app" class="position-absolute w-100 h-100">
+              <div v-for="act of activities" class="bg-white rounded activity" v-bind:style="act.style">
+                
+              </div>
+            </div>
             <div id="times" class="me-3 d-flex flex-column">
                 <div id="00-04" class="sixth">00</div>
                 <div id="04-08" class="sixth">04</div>
@@ -97,8 +99,30 @@
     </div>
 
     <script type="module">
+      const vapp = new Vue({
+        el: "#v-app",
+        data : {
+          activities: []
+        },
+        methods : {
+          updateActivities: function(activities) {
+            this.activities = activities;
+            for (var act of this.activities) {
+              const msinday = 24*60*60*1000;
+              var startinday = (act.start)%msinday;
+              var top = 100*(startinday)/msinday;
+              var height = 100*(act.end-act.start)/msinday;
+              act.style = {
+                "top": top + "%",
+                "height": height + "%"
+              }
+            }
+          }
+        }
+      });
+
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-      import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
+      import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
       import { getAuth, browserSessionPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
       const firebaseConfig = {
@@ -118,6 +142,7 @@
       var sw_start = 0;
       var sw_running = false;
       var sw_interval;
+      var authuser;
 
       var uiConfig = {
         callbacks: {
@@ -141,6 +166,12 @@
           $("#auth-overlay").show(200);
         } else {
           console.log(user);
+          onValue(ref(db,`/activity/${user.uid}/`), (snapshot) => {
+            if (!snapshot.exists()) return;
+            var activities = Object.values(snapshot.val());
+            console.log(activities);
+            vapp.updateActivities(activities);
+          })
         }
       })
 
@@ -157,7 +188,7 @@
           var sw_stop = Date.now();
           sw_running = false;
           clearInterval(sw_interval);
-          addActivity(sw_start, sw_stop);
+          registerActivity(sw_start, sw_stop);
           $("#start-icon").removeClass("bi-stop-fill");
           $("#start-icon").addClass("bi-play-fill");
           $("#start").removeClass("start-red");
@@ -177,10 +208,12 @@
         $("#duration").text(`${strhours}:${strminutes}:${strseconds}`);
       }
 
-      function addActivity(start, end) {
-        set(ref(db, "activity/"+start), {
+      function registerActivity(start, end) {
+        var uid = firebase.auth().currentUser.uid;
+        console.log(uid);
+        set(ref(db, "activity/"+uid+"/"+start), {
           start: start,
-          stop: end
+          end: end
         });
       }
 
