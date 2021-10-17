@@ -1,0 +1,53 @@
+body {
+    background: #2d2e33;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+#mainDiv {
+    background: #577590;
+    color: white;
+    width: 700px;
+}
+
+.sixth {
+    height: 100px;
+    width: 90%;
+}
+
+#lines {
+    padding-top: 2.25%;
+}
+
+#start.start-green {
+    background-color: #90be6d;
+}
+
+#start.start-green:hover {
+    background-color: #9abf7e;
+}
+
+#start.start-red {
+    background-color: #f94144;
+}
+
+#start.start-red:hover {
+    background-color: #fc5d60;
+}
+
+#auth-overlay {
+    display: none;
+    background-color: #2d2e33ba;
+    position: absolute;
+    height: 200%;
+}
+
+.activity {
+    width: 56%;
+    height: 10%;
+    position: absolute;
+    left: 8%;
+    opacity: 0.5;
+}

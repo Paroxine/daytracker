@@ -38,25 +38,29 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
-    
 
-    <style media="screen">
-      body { background: #2d2e33; color: white; font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; position: relative; }
-      #mainDiv { background: #577590; width: 700px; }
-      .sixth { height:100px; width:90%; }
-      #lines { padding-top: 2.25%; }
-      #start.start-green { background-color: #90be6d; }
-      #start.start-green:hover { background-color: #9abf7e; }
-      #start.start-red { background-color: #f94144; }
-      #start.start-red:hover { background-color: #fc5d60; }
-      #auth-overlay { display: none; background-color: #2d2e33ba; position: absolute; height: 200%; }
-      .activity { width:56%; height: 10%; position: absolute; left: 8%; opacity: 0.5; }
-    </style>
+    <link href="/index.css" rel="stylesheet"/>
   </head>
   <body>
     <div id="auth-overlay" class="w-100">
       <div class="w-100 h-100 d-flex flex-row justify-content-center">
         <div id="firebaseui-auth-container" class="mt-5"></div>
+      </div>
+    </div>
+    <div id="editor-modal" class="modal fade²">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            This is a modal.
+          </div>
+          <div class="modal-body">
+            And here is its body.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="mainDiv" class="rounded mx-auto my-5 p-5 d-flex flex-column align-items-center">
@@ -68,7 +72,7 @@
         </div>
         <div id="dayInfo" class="w-100 d-flex flex-row mt-5 position-relative">
             <div id="v-app" class="position-absolute w-100 h-100">
-              <div v-for="act of activities" class="bg-white rounded activity" v-bind:style="act.style">
+              <div v-for="act of Object.values(activities)" class="bg-white rounded activity" v-bind:style="act.style" v-on:click="editActivity" v-bind:id="act.start">
                 
               </div>
             </div>
@@ -98,125 +102,6 @@
         </div>
     </div>
 
-    <script type="module">
-      const vapp = new Vue({
-        el: "#v-app",
-        data : {
-          activities: []
-        },
-        methods : {
-          updateActivities: function(activities) {
-            this.activities = activities;
-            for (var act of this.activities) {
-              const msinday = 24*60*60*1000;
-              var startinday = (act.start)%msinday;
-              var top = 100*(startinday)/msinday;
-              var height = 100*(act.end-act.start)/msinday;
-              act.style = {
-                "top": top + "%",
-                "height": height + "%"
-              }
-            }
-          }
-        }
-      });
-
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-      import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
-      import { getAuth, browserSessionPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyAAKJWUFlMNQlOCJO6XnH4Gx68C9nXAVHI",
-        authDomain: "daytracker-6f56d.firebaseapp.com",
-        projectId: "daytracker-6f56d",
-        storageBucket: "daytracker-6f56d.appspot.com",
-        messagingSenderId: "695023647896",
-        appId: "1:695023647896:web:3a7b20486aaadf2281e4ed",
-        databaseURL: "https://daytracker-6f56d-default-rtdb.europe-west1.firebasedatabase.app/"
-      };
-    
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase();
-
-      var sw_start = 0;
-      var sw_running = false;
-      var sw_interval;
-      var authuser;
-
-      var uiConfig = {
-        callbacks: {
-          signInSuccessWithAuthResult : function(authResult, redirectUrl) {
-            $("#auth-overlay").hide(200);
-            return false;
-          }
-        },
-        signInSuccessUrl: '/',
-        signInOptions: [
-          // Leave the lines as is for the providers you want to offer your users.
-          firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        ],
-      };
-
-      var ui = new firebaseui.auth.AuthUI(firebase.auth());
-      ui.start('#firebaseui-auth-container', uiConfig);
-
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (!user) {
-          $("#auth-overlay").show(200);
-        } else {
-          console.log(user);
-          onValue(ref(db,`/activity/${user.uid}/`), (snapshot) => {
-            if (!snapshot.exists()) return;
-            var activities = Object.values(snapshot.val());
-            console.log(activities);
-            vapp.updateActivities(activities);
-          })
-        }
-      })
-
-      $("#start").click((event) => {
-        if (!sw_running) {
-          sw_start = Date.now();
-          sw_running = true;
-          sw_interval = setInterval(updateDuration,9);
-          $("#start-icon").removeClass("bi-play-fill");
-          $("#start-icon").addClass("bi-stop-fill");
-          $("#start").removeClass("start-green");
-          $("#start").addClass("start-red");
-        } else {
-          var sw_stop = Date.now();
-          sw_running = false;
-          clearInterval(sw_interval);
-          registerActivity(sw_start, sw_stop);
-          $("#start-icon").removeClass("bi-stop-fill");
-          $("#start-icon").addClass("bi-play-fill");
-          $("#start").removeClass("start-red");
-          $("#start").addClass("start-green");
-          $("#duration").text("00:00:00");
-        }
-      });
-
-      function updateDuration() {
-        var ms = Date.now() - sw_start;
-        var seconds = Math.floor(ms/1000);
-        var minutes = Math.floor(seconds/60);
-        var hours = Math.floor(minutes/60);
-        var strhours = hours.toString().padStart(2,"0");
-        var strminutes = (minutes%60).toString().padStart(2,"0");
-        var strseconds = (seconds%60).toString().padStart(2,"0");
-        $("#duration").text(`${strhours}:${strminutes}:${strseconds}`);
-      }
-
-      function registerActivity(start, end) {
-        var uid = firebase.auth().currentUser.uid;
-        console.log(uid);
-        set(ref(db, "activity/"+uid+"/"+start), {
-          start: start,
-          end: end
-        });
-      }
-
-    </script>
+    <script src="index.js" type="module"></script>
   </body>
 </html>
