@@ -21,20 +21,20 @@ body {
     padding-top: 2.25%;
 }
 
-#start.start-green {
+#end-button {
     background-color: #90be6d;
+    width: 25%;
+    text-align: center;
 }
 
-#start.start-green:hover {
+.time-div {
+    background-color: white;
+    opacity: 0.9;
+    margin-right: 10px;
+}
+
+#end-button:hover {
     background-color: #9abf7e;
-}
-
-#start.start-red {
-    background-color: #f94144;
-}
-
-#start.start-red:hover {
-    background-color: #fc5d60;
 }
 
 #auth-overlay {
@@ -45,9 +45,22 @@ body {
 }
 
 .activity {
-    width: 56%;
-    height: 10%;
+    width: 79%;
     position: absolute;
-    left: 8%;
-    opacity: 0.5;
+    left: 13%;
+    opacity: 0.8;
+}
+
+.type {
+    text-align: center;
+    border-radius: 3px;
+    padding: 3px;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+.type:hover {
+    opacity: 1;
+    color: white;
+    transition: 200ms;
 }

@@ -5,11 +5,20 @@ import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebase
 var sw_start = 0; //Start of current stopwatch
 var sw_running = false;
 var sw_interval;
+const act_colors = {
+    "School": "#90be6d",
+    "Necessary": "#f9c74f",
+    "Productive":"#277da1",
+    "Unnecessary": "#f94144",
+    "Undefined": "#ced4da"
+}
+var selected_act;
 
-const vapp = new Vue({
+const activity_app = new Vue({
     el: "#v-app",
     data: {
-        activities: {}
+        activities: {},
+        act_colors: act_colors
     },
     methods: {
         updateActivities: function (activities) { //called by onValue(...) when the database is updates on /users/$uid/activity
@@ -21,18 +30,41 @@ const vapp = new Vue({
                 var height = 100 * (act.end - act.start) / msinday;
                 act.style = {
                     "top": top + "%",
-                    "height": height + "%"
+                    "height": height + "%",
+                    "background-color": act_colors[act.type],
                 }
             }
         },
-        editActivity: function(event) {
+        editActivity: function(event) { //selects the activity and opens the modal
             var act = this.activities[event.target.id];
+            selected_act = act;
             editorModal.show();
+        },
+        setActivityType: function(id, type) { //called on button click in the editor modal
+            var act = this.activities[id]
+            act.type = type;
+            act.style["background-color"] = act_colors[act.type];
+            console.log("Set " + type + " to " + type);
         }
     }
 });
 
-const editorModal = new bootstrap.Modal(document.getElementById("editor-modal"))
+const editor_app = new Vue({
+    el: "#editor-modal",
+    data: {
+        act_colors: act_colors
+    },
+    methods: {
+        onTypeClick(event) {
+            var type = event.target.id; //button id is activity type
+            if (selected_act == undefined) return;
+            selected_act.type = type;
+            updateActivity(selected_act); //database update triggers automatic vue update
+        }
+    }
+});
+
+const editorModal = new bootstrap.Modal(document.getElementById("editor-modal"));
 
 const firebaseConfig = {
     apiKey: "AIzaSyAAKJWUFlMNQlOCJO6XnH4Gx68C9nXAVHI",
@@ -76,7 +108,7 @@ firebase.auth().onAuthStateChanged(function (user) {
             }
             var activities = snapshot.val();
             console.log(activities);
-            vapp.updateActivities(activities);
+            activity_app.updateActivities(activities);
         })
     }
 })
@@ -118,7 +150,16 @@ function registerActivity(start, end) {
     var uid = firebase.auth().currentUser.uid;
     set(ref(db, "/users/" + uid + "/activity/" + start), {
         start: start,
-        end: end
+        end: end,
+        type: "Undefined"
     });
 }
 
+function updateActivity(act) {
+    var uid = firebase.auth().currentUser.uid;
+    set(ref(db, "/users/" + uid + "/activity/" + act.start), {
+        start: act.start,
+        end: act.end,
+        type: act.type
+    });
+}

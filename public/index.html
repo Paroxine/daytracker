@@ -47,18 +47,19 @@
         <div id="firebaseui-auth-container" class="mt-5"></div>
       </div>
     </div>
-    <div id="editor-modal" class="modal fade²">
+    <div id="editor-modal" class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            This is a modal.
+            <h3>Activity editor</h3>
           </div>
-          <div class="modal-body">
-            And here is its body.
+          <div class="modal-body p-2 d-flex flex-column align-items-stretch">
+            <div v-for="type of Object.keys(act_colors)" v-bind:id="type" class="type" v-bind:style="{'background-color':act_colors[type]}" v-on:click="onTypeClick">
+              {{ type }}
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
           </div>
         </div>
       </div>
@@ -72,7 +73,7 @@
         </div>
         <div id="dayInfo" class="w-100 d-flex flex-row mt-5 position-relative">
             <div id="v-app" class="position-absolute w-100 h-100">
-              <div v-for="act of Object.values(activities)" class="bg-white rounded activity" v-bind:style="act.style" v-on:click="editActivity" v-bind:id="act.start">
+              <div v-for="act of Object.values(activities)" class="rounded activity" v-bind:style="act.style" v-on:click="editActivity" v-bind:id="act.start">
                 
               </div>
             </div>
@@ -94,11 +95,10 @@
                 <div id="20-00" class="sixth border-top border-bottom"></div>
             </div>          
         </div>
-        <div id="controls" class="pt-4 d-flex flex-row align-items-stretch w-100 fs-3">
-            <div class="d-flex flex-row justify-content-center" style="flex:1;">
-                <div id="start" class="rounded w-75 text-center start-green"><i id="start-icon" class="bi bi-play-fill align-middle"></i></div>
-            </div>
-            <div id="duration" class="px-2 text-center d-flex flex-column justify-content-center" style="flex:1;">00:00:00</div>
+        <div id="controls" class="pt-4 d-flex flex-row align-items-stretch justify-content-center w-100 fs-3">
+            <div class="rounded px-2 time-div"><input id="start-input" type="time"/></div>
+            <div class="rounded px-2 time-div"><input id="end-input" type="time"/></div>
+            <div id="end-button" class="rounded"><i id="start-icon" class="bi bi-clipboard-plus align-middle"></i></div>
         </div>
     </div>
 
